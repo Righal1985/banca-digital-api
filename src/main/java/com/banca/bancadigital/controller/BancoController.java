@@ -1,0 +1,48 @@
+package com.banca.bancadigital.controller;
+
+import com.banca.bancadigital.model.Cuenta;
+import com.banca.bancadigital.model.Usuario;
+import com.banca.bancadigital.service.BancoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/banco")
+public class BancoController {
+
+    private final BancoService bancoService;
+
+    // Inyección por constructor
+    public BancoController(BancoService bancoService) {
+        this.bancoService = bancoService;
+    }
+
+    // 1. Endpoint para Registrar un Usuario
+    // URL: POST http://localhost:8080/api/banco/usuarios
+    @PostMapping("/usuarios")
+    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
+        try {
+            Usuario nuevoUsuario = bancoService.registrarUsuario(usuario);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
+        } catch (RuntimeException e) {
+            // Si el RUT ya existe, atrapamos el error del Service y devolvemos un 400 (Bad Request)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // 2. Endpoint para Abrir una Cuenta
+    // URL: POST http://localhost:8080/api/banco/cuentas?rut=12345678-9&tipo=CORRIENTE
+    @PostMapping("/cuentas")
+    public ResponseEntity<?> abrirCuenta(
+            @RequestParam String rut,
+            @RequestParam String tipo) {
+        try {
+            Cuenta nuevaCuenta = bancoService.abrirCuenta(rut, tipo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCuenta);
+        } catch (RuntimeException e) {
+            // Si el usuario no existe, devolvemos un 400 con el mensaje de error
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+}
