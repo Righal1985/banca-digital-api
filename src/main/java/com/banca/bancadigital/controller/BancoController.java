@@ -6,6 +6,7 @@ import com.banca.bancadigital.service.BancoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/banco")
@@ -42,6 +43,34 @@ public class BancoController {
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCuenta);
         } catch (RuntimeException e) {
             // Si el usuario no existe, devolvemos un 400 con el mensaje de error
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    // 3. Endpoint para Depositar Dinero
+// URL: POST http://localhost:8080/api/banco/cuentas/depositar?numeroCuenta=78826524&monto=50000
+    @PostMapping("/cuentas/depositar")
+    public ResponseEntity<?> depositar(
+            @RequestParam String numeroCuenta,
+            @RequestParam BigDecimal monto) {
+        try {
+            Cuenta cuentaActualizada = bancoService.depositar(numeroCuenta, monto);
+            return ResponseEntity.ok(cuentaActualizada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // 4. Endpoint para Transferir entre Cuentas
+    // URL: POST http://localhost:8080/api/banco/cuentas/transferir?origen=78826524&destino=11223344&monto=20000
+    @PostMapping("/cuentas/transferir")
+    public ResponseEntity<?> transferir(
+            @RequestParam String origen,
+            @RequestParam String destino,
+            @RequestParam BigDecimal monto) {
+        try {
+            bancoService.transferir(origen, destino, monto);
+            return ResponseEntity.ok("Transferencia realizada con éxito");
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

@@ -7,6 +7,8 @@ import com.banca.bancadigital.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+
 import java.math.BigDecimal;
 import java.util.Random;
 
@@ -54,5 +56,51 @@ public class BancoService {
         Random random = new Random();
         int numero = 10000000 + random.nextInt(90000000); // Genera un número de 8 dígitos
         return String.valueOf(numero);
+    }
+    // 1. Lógica para Depositar Dinero
+    @Transactional
+    public Cuenta depositar(String numeroCuenta, BigDecimal monto) {
+        if (monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("El monto a depositar debe ser mayor a cero");
+        }
+
+        // Buscamos la cuenta en la base de datos a través de su repositorio
+        Cuenta cuenta = cuentaRepository.findByNumeroCuenta(numeroCuenta)
+                .orElseThrow(() -> new RuntimeException("La cuenta número " + numeroCuenta + " no existe"));
+
+        // Sumamos el saldo
+        cuenta.setSaldo(cuenta.getSaldo().add(monto));
+
+        // Guardamos los cambios
+        return cuentaRepository.save(cuenta);
+    }
+
+    // 2. Lógica para Transferir entre Cuentas
+    @Transactional
+    public void transferir(String cuentaOrigen, String cuentaDestino, BigDecimal monto) {
+        if (monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("El monto a transferir debe ser mayor a cero");
+        }
+
+        // Buscar y validar cuenta de origen
+        Cuenta origen = cuentaRepository.findByNumeroCuenta(cuentaOrigen)
+                .orElseThrow(() -> new RuntimeException("La cuenta de origen no existe"));
+
+        // Buscar y validar cuenta de destino
+        Cuenta destino = cuentaRepository.findByNumeroCuenta(cuentaDestino)
+                .orElseThrow(() -> new RuntimeException("La cuenta de destino no existe"));
+
+        // Verificar si hay fondos suficientes
+        if (origen.getSaldo().compareTo(monto) < 0) {
+            throw new RuntimeException("Fondos insuficientes en la cuenta de origen");
+        }
+
+        // Restar de una y sumar en la otra
+        origen.setSaldo(origen.getSaldo().subtract(monto));
+        destino.setSaldo(destino.getSaldo().add(monto));
+
+        // Guardar ambas cuentas actualizadas
+        cuentaRepository.save(origen);
+        cuentaRepository.save(destino);
     }
 }
