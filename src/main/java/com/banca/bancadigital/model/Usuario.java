@@ -1,12 +1,17 @@
-package com.banca.bancadigital.model; // Verifica que este sea tu paquete real
+package com.banca.bancadigital.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
-@Data // Esto de Lombok crea los Getters y Setters automáticamente
+@Getter // Reemplazamos @Data por Getter y Setter explícitos
+@Setter
+@ToString(exclude = "cuentas") // Evita que Lombok genere un bucle en el toString
 public class Usuario {
 
     @Id
@@ -14,7 +19,7 @@ public class Usuario {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String rut; // Ejemplo: "12345678-9"
+    private String rut;
 
     @Column(nullable = false)
     private String nombre;
@@ -22,7 +27,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // Un usuario puede tener varias cuentas (Corriente, Ahorro, etc.)
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("usuario") // <-- Esto detiene a Jackson para que no busque las cuentas sin sesión
     private List<Cuenta> cuentas;
 }

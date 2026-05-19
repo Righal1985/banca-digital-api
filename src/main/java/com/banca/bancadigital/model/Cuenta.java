@@ -1,12 +1,17 @@
 package com.banca.bancadigital.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "cuentas")
-@Data
+@Getter
+@Setter
+@ToString(exclude = "usuario") // Evita que Lombok genere bucles al imprimir la entidad
 public class Cuenta {
 
     @Id
@@ -22,8 +27,8 @@ public class Cuenta {
     @Column(nullable = false)
     private BigDecimal saldo;
 
-    // Relación inversa: Cada cuenta pertenece a un solo usuario
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnoreProperties("cuentas") // <-- CORTE AQUÍ: Al serializar la cuenta, no traerá la lista de cuentas del usuario
     private Usuario usuario;
 }
