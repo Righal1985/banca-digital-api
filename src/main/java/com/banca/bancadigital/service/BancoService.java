@@ -6,6 +6,10 @@ import com.banca.bancadigital.repository.CuentaRepository;
 import com.banca.bancadigital.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
+import com.banca.bancadigital.model.Transaccion;
+import com.banca.bancadigital.repository.TransaccionRepository;
 
 
 
@@ -17,11 +21,13 @@ public class BancoService {
 
     private final UsuarioRepository usuarioRepository;
     private final CuentaRepository cuentaRepository;
+    private final TransaccionRepository transaccionRepository;
 
     // Constructor para Inyección de Dependencias
-    public BancoService(UsuarioRepository usuarioRepository, CuentaRepository cuentaRepository) {
+    public BancoService(UsuarioRepository usuarioRepository, CuentaRepository cuentaRepository, TransaccionRepository transaccionRepository) {
         this.usuarioRepository = usuarioRepository;
         this.cuentaRepository = cuentaRepository;
+        this.transaccionRepository = transaccionRepository;
     }
 
     // REGLA 1: Crear un nuevo usuario en el sistema
@@ -64,15 +70,22 @@ public class BancoService {
             throw new RuntimeException("El monto a depositar debe ser mayor a cero");
         }
 
-        // Buscamos la cuenta en la base de datos a través de su repositorio
         Cuenta cuenta = cuentaRepository.findByNumeroCuenta(numeroCuenta)
                 .orElseThrow(() -> new RuntimeException("La cuenta número " + numeroCuenta + " no existe"));
 
-        // Sumamos el saldo
         cuenta.setSaldo(cuenta.getSaldo().add(monto));
+        Cuenta cuentaGuardada = cuentaRepository.save(cuenta);
 
-        // Guardamos los cambios
-        return cuentaRepository.save(cuenta);
+        // REGISTRO DEL HISTORIAL
+        Transaccion t = new Transaccion();
+        t.setTipo("DEPOSITO");
+        t.setMonto(monto);
+        t.setFechaHora(LocalDateTime.now());
+        t.setCuentaOrigen(cuentaGuardada); // En depósito, la cuenta origen es ella misma
+        t.setCuentaDestino(null);
+        transaccionRepository.save(t);
+
+        return cuentaGuardada;
     }
 
     // 2. Lógica para Transferir entre Cuentas
@@ -82,28 +95,31 @@ public class BancoService {
             throw new RuntimeException("El monto a transferir debe ser mayor a cero");
         }
 
-        // Buscar y validar cuenta de origen
         Cuenta origen = cuentaRepository.findByNumeroCuenta(cuentaOrigen)
                 .orElseThrow(() -> new RuntimeException("La cuenta de origen no existe"));
 
-        // Buscar y validar cuenta de destino
         Cuenta destino = cuentaRepository.findByNumeroCuenta(cuentaDestino)
                 .orElseThrow(() -> new RuntimeException("La cuenta de destino no existe"));
 
-        // Verificar si hay fondos suficientes
         if (origen.getSaldo().compareTo(monto) < 0) {
             throw new RuntimeException("Fondos insuficientes en la cuenta de origen");
         }
 
-        // Restar de una y sumar en la otra
         origen.setSaldo(origen.getSaldo().subtract(monto));
         destino.setSaldo(destino.getSaldo().add(monto));
 
-        // Guardar ambas cuentas actualizadas
         cuentaRepository.save(origen);
         cuentaRepository.save(destino);
+
+        // REGISTRO DEL HISTORIAL
+        Transaccion t = new Transaccion();
+        t.setTipo("TRANSFERENCIA");
+        t.setMonto(monto);
+        t.setFechaHora(LocalDateTime.now());
+        t.setCuentaOrigen(origen);
+        t.setCuentaDestino(destino);
+        transaccionRepository.save(t);
     }
-    // ... dentro de tu BancoService.java
 
     // 5. Consultar un usuario con todas sus cuentas mediante su RUT
     @Transactional(readOnly = true)
@@ -117,5 +133,11 @@ public class BancoService {
     public Cuenta obtenerDetalleCuenta(String numeroCuenta) {
         return cuentaRepository.findByNumeroCuenta(numeroCuenta)
                 .orElseThrow(() -> new RuntimeException("La cuenta número " + numeroCuenta + " no existe"));
+    }
+    @Transactional(readOnly = true)
+    public List<Transaccion> obtenerHistorialCuenta(String numeroCuenta) {
+        Cuenta cuenta = cuentaRepository.findByNumeroCuenta(numeroCuenta)
+                .orElseThrow(() -> new RuntimeException("La cuenta número " + numeroCuenta + " no existe"));
+        return transaccionRepository.findByCuenta(cuenta);
     }
 }

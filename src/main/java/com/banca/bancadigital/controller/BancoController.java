@@ -1,12 +1,14 @@
 package com.banca.bancadigital.controller;
 
 import com.banca.bancadigital.model.Cuenta;
+import com.banca.bancadigital.model.Transaccion;
 import com.banca.bancadigital.model.Usuario;
 import com.banca.bancadigital.service.BancoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/banco")
@@ -94,6 +96,17 @@ public class BancoController {
         try {
             Cuenta cuenta = bancoService.obtenerDetalleCuenta(numeroCuenta);
             return ResponseEntity.ok(cuenta);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+    // 7. Endpoint para ver el historial de movimientos de una cuenta
+// URL: GET http://localhost:8080/api/banco/cuentas/historial?numeroCuenta=78826524
+    @GetMapping("/cuentas/historial")
+    public ResponseEntity<?> obtenerHistorial(@RequestParam String numeroCuenta) {
+        try {
+            List<Transaccion> historial = bancoService.obtenerHistorialCuenta(numeroCuenta);
+            return ResponseEntity.ok(historial);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
