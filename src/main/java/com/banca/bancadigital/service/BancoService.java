@@ -103,4 +103,19 @@ public class BancoService {
         cuentaRepository.save(origen);
         cuentaRepository.save(destino);
     }
+    // ... dentro de tu BancoService.java
+
+    // 5. Consultar un usuario con todas sus cuentas mediante su RUT
+    @Transactional(readOnly = true)
+    public Usuario obtenerEstadoCliente(String rut) {
+        return usuarioRepository.findByRut(rut)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con el RUT: " + rut));
+    }
+
+    // 6. Consultar los datos de una cuenta específica por su número
+    @Transactional(readOnly = true)
+    public Cuenta obtenerDetalleCuenta(String numeroCuenta) {
+        return cuentaRepository.findByNumeroCuenta(numeroCuenta)
+                .orElseThrow(() -> new RuntimeException("La cuenta número " + numeroCuenta + " no existe"));
+    }
 }

@@ -74,4 +74,28 @@ public class BancoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    // 5. Endpoint para obtener el estado completo de un cliente (Usuario + sus cuentas)
+// URL: GET http://localhost:8080/api/banco/usuarios/cliente?rut=12345678-9
+    @GetMapping("/usuarios/cliente")
+    public ResponseEntity<?> obtenerEstadoCliente(@RequestParam String rut) {
+        try {
+            Usuario usuario = bancoService.obtenerEstadoCliente(rut);
+            return ResponseEntity.ok(usuario);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    // 6. Endpoint para ver el detalle de una sola cuenta específica
+// URL: GET http://localhost:8080/api/banco/cuentas/detalle?numeroCuenta=78826524
+    @GetMapping("/cuentas/detalle")
+    public ResponseEntity<?> obtenerDetalleCuenta(@RequestParam String numeroCuenta) {
+        try {
+            Cuenta cuenta = bancoService.obtenerDetalleCuenta(numeroCuenta);
+            return ResponseEntity.ok(cuenta);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }

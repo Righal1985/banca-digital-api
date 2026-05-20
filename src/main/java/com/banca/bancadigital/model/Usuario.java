@@ -27,7 +27,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("usuario") // <-- Esto detiene a Jackson para que no busque las cuentas sin sesión
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER) //
+    @JsonIgnoreProperties("usuario") // Mantenemos esto para evitar bucles infinitos
     private List<Cuenta> cuentas;
 }
