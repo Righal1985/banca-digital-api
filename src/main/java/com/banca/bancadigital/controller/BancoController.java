@@ -4,6 +4,7 @@ import com.banca.bancadigital.model.Cuenta;
 import com.banca.bancadigital.dto.TransaccionDTO;
 import com.banca.bancadigital.model.Usuario;
 import com.banca.bancadigital.service.BancoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,8 @@ public class BancoController {
 
     // 1. Endpoint para Registrar un Usuario
     // URL: POST http://localhost:8080/api/banco/usuarios
-    @PostMapping("/usuarios")
-    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
+    @PostMapping("/usuarios/registrar")
+    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody Usuario usuario) {
         try {
             Usuario nuevoUsuario = bancoService.registrarUsuario(usuario);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);

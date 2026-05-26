@@ -2,6 +2,8 @@ package com.banca.bancadigital.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,25 +11,29 @@ import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
-@Getter // Reemplazamos @Data por Getter y Setter explícitos
+@Getter
 @Setter
-@ToString(exclude = "cuentas") // Evita que Lombok genere un bucle en el toString
+@ToString(exclude = "cuentas")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El RUT es obligatorio") // <- Validamos que no venga vacío
     @Column(nullable = false, unique = true)
     private String rut;
 
+    @NotBlank(message = "El nombre no puede estar vacío") // <- Validamos que no venga vacío o con puros espacios
     @Column(nullable = false)
     private String nombre;
 
+    @NotBlank(message = "El email no puede estar vacío")
+    @Email(message = "El formato del correo electrónico no es válido") // <- Spring valida automáticamente el '@' y el dominio
     @Column(nullable = false, unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER) //
-    @JsonIgnoreProperties("usuario") // Mantenemos esto para evitar bucles infinitos
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("usuario")
     private List<Cuenta> cuentas;
 }
