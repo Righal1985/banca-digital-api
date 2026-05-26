@@ -1,5 +1,8 @@
 package com.banca.bancadigital.controller;
 
+import com.banca.bancadigital.dto.TransferenciaRequestDTO;
+import com.banca.bancadigital.dto.UsuarioRequestDTO;
+import com.banca.bancadigital.dto.UsuarioResponseDTO;
 import com.banca.bancadigital.model.Cuenta;
 import com.banca.bancadigital.dto.TransaccionDTO;
 import com.banca.bancadigital.model.Usuario;
@@ -25,12 +28,25 @@ public class BancoController {
     // 1. Endpoint para Registrar un Usuario
     // URL: POST http://localhost:8080/api/banco/usuarios
     @PostMapping("/usuarios/registrar")
-    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UsuarioRequestDTO dto) {
         try {
-            Usuario nuevoUsuario = bancoService.registrarUsuario(usuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
+            // 1. Convertimos el DTO de entrada a la Entidad que entiende el Service
+            Usuario usuarioEntity = new Usuario();
+            usuarioEntity.setRut(dto.getRut());
+            usuarioEntity.setNombre(dto.getNombre());
+            usuarioEntity.setEmail(dto.getEmail());
+
+            // 2. Ejecutamos la lógica de negocio
+            Usuario usuarioCreado = bancoService.registrarUsuario(usuarioEntity);
+
+            // 3. Convertimos la Entidad resultante al DTO de salida seguro
+            UsuarioResponseDTO response = new UsuarioResponseDTO();
+            response.setRut(usuarioCreado.getRut());
+            response.setNombre(usuarioCreado.getNombre());
+            response.setEmail(usuarioCreado.getEmail());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            // Si el RUT ya existe, atrapamos el error del Service y devolvemos un 400 (Bad Request)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -66,13 +82,13 @@ public class BancoController {
     // 4. Endpoint para Transferir entre Cuentas
     // URL: POST http://localhost:8080/api/banco/cuentas/transferir?origen=78826524&destino=11223344&monto=20000
     @PostMapping("/cuentas/transferir")
-    public ResponseEntity<?> transferir(
-            @RequestParam String origen,
-            @RequestParam String destino,
-            @RequestParam BigDecimal monto) {
+    public ResponseEntity<?> transferir(@Valid @RequestBody TransferenciaRequestDTO dto) {
         try {
-            bancoService.transferir(origen, destino, monto);
-            return ResponseEntity.ok("Transferencia realizada con éxito");
+            // Ejecutamos el servicio usando los datos limpios del DTO
+            bancoService.transferir(dto.getCuentaOrigen(), dto.getCuentaDestino(), dto.getMonto());
+
+            // Devolvemos un mensaje corporativo de éxito en lugar de un texto plano
+            return ResponseEntity.ok().body("{\"mensaje\": \"Transferencia realizada con éxito\"}");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
