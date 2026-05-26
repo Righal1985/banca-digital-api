@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import com.banca.bancadigital.model.Transaccion;
 import com.banca.bancadigital.repository.TransaccionRepository;
+import com.banca.bancadigital.dto.TransaccionDTO;
+import java.util.stream.Collectors;
 
 
 
@@ -135,9 +137,32 @@ public class BancoService {
                 .orElseThrow(() -> new RuntimeException("La cuenta número " + numeroCuenta + " no existe"));
     }
     @Transactional(readOnly = true)
-    public List<Transaccion> obtenerHistorialCuenta(String numeroCuenta) {
+    public List<TransaccionDTO> obtenerHistorialCuenta(String numeroCuenta) {
+        // Buscamos la cuenta en la BD
         Cuenta cuenta = cuentaRepository.findByNumeroCuenta(numeroCuenta)
                 .orElseThrow(() -> new RuntimeException("La cuenta número " + numeroCuenta + " no existe"));
-        return transaccionRepository.findByCuenta(cuenta);
+
+        // Obtenemos la lista de entidades originales
+        List<Transaccion> transacciones = transaccionRepository.findByCuenta(cuenta);
+
+        // Convertimos la lista de Entidades a lista de DTOs usando Streams de Java
+        return transacciones.stream().map(transaccion -> {
+            TransaccionDTO dto = new TransaccionDTO();
+            dto.setId(transaccion.getId());
+            dto.setTipo(transaccion.getTipo());
+            dto.setMonto(transaccion.getMonto());
+            dto.setFechaHora(transaccion.getFechaHora());
+
+            // Extraemos solo los strings de los números de cuenta de forma segura
+            dto.setNumeroCuentaOrigen(transaccion.getCuentaOrigen().getNumeroCuenta());
+
+            if (transaccion.getCuentaDestino() != null) {
+                dto.setNumeroCuentaDestino(transaccion.getCuentaDestino().getNumeroCuenta());
+            } else {
+                dto.setNumeroCuentaDestino("N/A"); // Para depósitos donde no hay destino
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

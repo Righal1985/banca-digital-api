@@ -1,7 +1,7 @@
 package com.banca.bancadigital.controller;
 
 import com.banca.bancadigital.model.Cuenta;
-import com.banca.bancadigital.model.Transaccion;
+import com.banca.bancadigital.dto.TransaccionDTO;
 import com.banca.bancadigital.model.Usuario;
 import com.banca.bancadigital.service.BancoService;
 import org.springframework.http.HttpStatus;
@@ -100,12 +100,11 @@ public class BancoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-    // 7. Endpoint para ver el historial de movimientos de una cuenta
-// URL: GET http://localhost:8080/api/banco/cuentas/historial?numeroCuenta=78826524
     @GetMapping("/cuentas/historial")
     public ResponseEntity<?> obtenerHistorial(@RequestParam String numeroCuenta) {
         try {
-            List<Transaccion> historial = bancoService.obtenerHistorialCuenta(numeroCuenta);
+            // Ahora el servicio nos retorna la lista protegida de DTOs
+            List<TransaccionDTO> historial = bancoService.obtenerHistorialCuenta(numeroCuenta);
             return ResponseEntity.ok(historial);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
