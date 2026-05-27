@@ -27,6 +27,9 @@ public class Cuenta {
     @Column(nullable = false)
     private BigDecimal saldo;
 
+    @Column(nullable = false)
+    private boolean activa = true;
+
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     @JsonIgnoreProperties("cuentas") // <-- CORTE AQUÍ: Al serializar la cuenta, no traerá la lista de cuentas del usuario

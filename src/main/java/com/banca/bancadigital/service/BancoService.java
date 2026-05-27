@@ -34,15 +34,30 @@ public class BancoService {
 
     // REGLA 1: Crear un nuevo usuario en el sistema
     @Transactional
+    // ... dentro de BancoService.java
+
     public Usuario registrarUsuario(Usuario usuario) {
-        // Validar si el RUT ya existe para no duplicar clientes
+        // 1. Validar que el RUT no esté duplicado en la base de datos
         if (usuarioRepository.findByRut(usuario.getRut()).isPresent()) {
-            throw new RuntimeException("El RUT ya se encuentra registrado en el banco.");
+            throw new RuntimeException("El RUT ya se encuentra registrado en el sistema");
         }
+
+        // 2. Crear la primera cuenta bancaria automática para este usuario
+        Cuenta nuevaCuenta = new Cuenta();
+        // Generamos un número de cuenta aleatorio de 8 dígitos
+        nuevaCuenta.setNumeroCuenta(String.valueOf((int)((Math.random() * 90000000) + 10000000)));
+        nuevaCuenta.setSaldo(java.math.BigDecimal.ZERO);
+        nuevaCuenta.setActiva(true); // De paso la dejamos activa con nuestra nueva regla de negocio
+        nuevaCuenta.setTipo("CORRIENTE");
+        nuevaCuenta.setUsuario(usuario); // Amarramos la cuenta al usuario
+
+        // 3. Añadir la cuenta a la lista del usuario
+        usuario.setCuentas(new java.util.ArrayList<>());
+        usuario.getCuentas().add(nuevaCuenta);
+
+        // 4. Guardar en cascada (al guardar el usuario, se guardará su cuenta automáticamente)
         return usuarioRepository.save(usuario);
     }
-
-    // REGLA 2: Abrir una cuenta nueva para un usuario existente
     @Transactional
     public Cuenta abrirCuenta(String rutUsuario, String tipoCuenta) {
         // 1. Buscar que el usuario realmente exista en el banco

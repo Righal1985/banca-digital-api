@@ -39,11 +39,15 @@ public class BancoController {
             // 2. Ejecutamos la lógica de negocio
             Usuario usuarioCreado = bancoService.registrarUsuario(usuarioEntity);
 
-            // 3. Convertimos la Entidad resultante al DTO de salida seguro
             UsuarioResponseDTO response = new UsuarioResponseDTO();
             response.setRut(usuarioCreado.getRut());
             response.setNombre(usuarioCreado.getNombre());
             response.setEmail(usuarioCreado.getEmail());
+
+// Extraemos el número de la cuenta que el Service creó automáticamente
+            if (usuarioCreado.getCuentas() != null && !usuarioCreado.getCuentas().isEmpty()) {
+                response.setNumeroCuentaAsignada(usuarioCreado.getCuentas().get(0).getNumeroCuenta());
+            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
