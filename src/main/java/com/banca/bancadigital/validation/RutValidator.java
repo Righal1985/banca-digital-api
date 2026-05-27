@@ -7,13 +7,13 @@ public class RutValidator implements ConstraintValidator<ValidRut, String> {
 
     @Override
     public boolean isValid(String rut, ConstraintValidatorContext context) {
-        // 1. Si el RUT viene vacío, dejamos que @NotBlank se encargue, no rompemos aquí
+        //  Si el RUT viene vacío, dejamos que @NotBlank se encargue, no rompemos aquí
         if (rut == null || rut.trim().isEmpty()) {
             return true;
         }
 
         try {
-            // 2. Limpiar el RUT: quitar puntos, guiones y espacios, y pasarlo a mayúsculas
+            // Limpiar el RUT: quitar puntos, guiones y espacios, y pasarlo a mayúsculas
             String rutLimpio = rut.replace(".", "")
                     .replace("-", "")
                     .trim()
@@ -24,11 +24,11 @@ public class RutValidator implements ConstraintValidator<ValidRut, String> {
                 return false;
             }
 
-            // 3. Separar el dígito verificador (el último caracter) del cuerpo del RUT
+
             char dvEntrante = rutLimpio.charAt(rutLimpio.length() - 1);
             String cuerpoRut = rutLimpio.substring(0, rutLimpio.length() - 1);
 
-            // El cuerpo del RUT deben ser puros números
+
             int numeroRut = Integer.parseInt(cuerpoRut);
 
             // 4. ALGORITMO MÓDULO 11 REAL
@@ -43,7 +43,7 @@ public class RutValidator implements ConstraintValidator<ValidRut, String> {
 
                 multiplicador++;
                 if (multiplicador > 7) {
-                    multiplicador = 2; // El ciclo matemática en Chile es del 2 al 7
+                    multiplicador = 2;
                 }
             }
 
@@ -60,7 +60,7 @@ public class RutValidator implements ConstraintValidator<ValidRut, String> {
                 dvCalculado = Character.forDigit(resultadoDiferencia, 10);
             }
 
-            // 5. Comparar si el DV que mandó el usuario es igual al que calculó el banco
+            //  Comparar si el DV que mandó el usuario es igual al que calculó el banco
             return dvEntrante == dvCalculado;
 
         } catch (Exception e) {

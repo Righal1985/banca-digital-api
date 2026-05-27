@@ -55,8 +55,7 @@ public class BancoController {
         }
     }
 
-    // 2. Endpoint para Abrir una Cuenta
-    // URL: POST http://localhost:8080/api/banco/cuentas?rut=12345678-9&tipo=CORRIENTE
+
     @PostMapping("/cuentas")
     public ResponseEntity<?> abrirCuenta(
             @RequestParam String rut,
@@ -69,8 +68,7 @@ public class BancoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-    // 3. Endpoint para Depositar Dinero
-// URL: POST http://localhost:8080/api/banco/cuentas/depositar?numeroCuenta=78826524&monto=50000
+
     @PostMapping("/cuentas/depositar")
     public ResponseEntity<?> depositar(
             @RequestParam String numeroCuenta,
@@ -83,8 +81,7 @@ public class BancoController {
         }
     }
 
-    // 4. Endpoint para Transferir entre Cuentas
-    // URL: POST http://localhost:8080/api/banco/cuentas/transferir?origen=78826524&destino=11223344&monto=20000
+
     @PostMapping("/cuentas/transferir")
     public ResponseEntity<?> transferir(@Valid @RequestBody TransferenciaRequestDTO dto) {
         try {
@@ -98,8 +95,7 @@ public class BancoController {
         }
     }
 
-    // 5. Endpoint para obtener el estado completo de un cliente (Usuario + sus cuentas)
-// URL: GET http://localhost:8080/api/banco/usuarios/cliente?rut=12345678-9
+
     @GetMapping("/usuarios/cliente")
     public ResponseEntity<?> obtenerEstadoCliente(@RequestParam String rut) {
         try {
@@ -110,8 +106,7 @@ public class BancoController {
         }
     }
 
-    // 6. Endpoint para ver el detalle de una sola cuenta específica
-// URL: GET http://localhost:8080/api/banco/cuentas/detalle?numeroCuenta=78826524
+
     @GetMapping("/cuentas/detalle")
     public ResponseEntity<?> obtenerDetalleCuenta(@RequestParam String numeroCuenta) {
         try {

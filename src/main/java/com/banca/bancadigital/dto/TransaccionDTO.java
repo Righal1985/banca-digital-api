@@ -12,6 +12,6 @@ public class TransaccionDTO {
     private String tipo;
     private BigDecimal monto;
     private LocalDateTime fechaHora;
-    private String numeroCuentaOrigen; // Solo el número, no el objeto Cuenta completo
-    private String numeroCuentaDestino; // Solo el número
+    private String numeroCuentaOrigen;
+    private String numeroCuentaDestino;
 }

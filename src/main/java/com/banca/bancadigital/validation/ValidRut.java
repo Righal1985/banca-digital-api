@@ -5,7 +5,7 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = RutValidator.class) // Aquí amarramos la anotación con la lógica real
+@Constraint(validatedBy = RutValidator.class) // amarramos la anotación con la lógica real
 @Target({ElementType.FIELD, ElementType.PARAMETER}) // Indica que se puede usar en atributos y parámetros
 @Retention(RetentionPolicy.RUNTIME) // Se ejecuta en tiempo de ejecución
 public @interface ValidRut {

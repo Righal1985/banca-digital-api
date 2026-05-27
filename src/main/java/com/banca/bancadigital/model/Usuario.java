@@ -20,11 +20,11 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El RUT es obligatorio") // <- Validamos que no venga vacío
+    @NotBlank(message = "El RUT es obligatorio")
     @Column(nullable = false, unique = true)
     private String rut;
 
-    @NotBlank(message = "El nombre no puede estar vacío") // <- Validamos que no venga vacío o con puros espacios
+    @NotBlank(message = "El nombre no puede estar vacío")
     @Column(nullable = false)
     private String nombre;
 
@@ -36,4 +36,7 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties("usuario")
     private List<Cuenta> cuentas;
+
+    @Column(nullable = false)
+    private String password;
 }

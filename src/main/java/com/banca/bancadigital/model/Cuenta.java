@@ -32,6 +32,6 @@ public class Cuenta {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonIgnoreProperties("cuentas") // <-- CORTE AQUÍ: Al serializar la cuenta, no traerá la lista de cuentas del usuario
+    @JsonIgnoreProperties("cuentas")
     private Usuario usuario;
 }

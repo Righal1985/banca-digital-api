@@ -29,7 +29,7 @@ public class Transaccion {
     @Column(nullable = false)
     private LocalDateTime fechaHora;
 
-    // La cuenta que realiza la acción o se ve afectada principalmente
+
     @ManyToOne
     @JoinColumn(name = "cuenta_origen_id", nullable = false)
     @JsonIgnoreProperties({"usuario", "hibernateLazyInitializer", "handler"})

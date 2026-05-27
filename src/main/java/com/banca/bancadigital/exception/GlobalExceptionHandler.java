@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO errorBancario = new ErrorResponseDTO(
                 HttpStatus.BAD_REQUEST.value(),
                 "ERROR_VALIDACION_DATOS",
-                mensajeError, // Aquí saldrá tu mensaje: "El formato del correo electrónico no es válido", etc.
+                mensajeError,
                 request.getRequestURI()
         );
 
