@@ -28,14 +28,23 @@ public class SecurityConfig {
 
                 // 2. Definimos qué rutas son públicas y cuáles requieren token
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Login y Registro serán públicos
-                        .anyRequest().authenticated() // Cualquier otra operación (transferencias, saldos) exige token
+                        .requestMatchers("/api/auth/**").permitAll() // Login y Registro públicos
+
+                        // Solo permitimos consultar saldos y transacciones de cualquier ID sin token
+                        .requestMatchers("/api/banco/cuentas/*/saldo").permitAll()
+                        .requestMatchers("/api/banco/cuentas/*/transacciones").permitAll()
+
+
+                        .requestMatchers("/error").permitAll()
+
+
+                        .anyRequest().authenticated()
                 )
 
-                // 3. La API será Stateless (sin estado/sin sesiones en el servidor)
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // 4. Metemos nuestro filtro de seguridad en la cadena de Spring
+
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

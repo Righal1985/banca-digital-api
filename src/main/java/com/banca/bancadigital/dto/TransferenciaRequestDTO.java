@@ -19,4 +19,6 @@ public class TransferenciaRequestDTO {
     @NotNull(message = "El monto no puede ser nulo")
     @Positive(message = "El monto a transferir debe ser mayor a cero")
     private BigDecimal monto;
+
+    private String descripcion;
 }
